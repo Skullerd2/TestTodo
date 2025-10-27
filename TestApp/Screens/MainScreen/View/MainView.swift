@@ -1,11 +1,6 @@
-//
-//  ViewController.swift
-//  TestApp
-//
-//  Created by Vadim on 12.10.2025.
-//
 
 import UIKit
+import Foundation
 
 class MainView: UIViewController {
     
@@ -26,6 +21,7 @@ class MainView: UIViewController {
         $0.backgroundColor = .clear
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.separatorStyle = .none
+        $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: view.safeAreaInsets.bottom + 16 + 48, right: 0)
         return $0
     }(UITableView())
     
@@ -45,13 +41,13 @@ class MainView: UIViewController {
         $0.backgroundColor = #colorLiteral(red: 0.454395771, green: 0.5721556544, blue: 0.9948783517, alpha: 1)
         $0.layer.cornerRadius = 24
         $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.addTarget(self, action: #selector(showCreatingTaskView), for: .touchUpInside)
         return $0
     }(UIButton())
     
     //Properties
     
     let viewModel: MainViewModel
-    let tasks: [TaskCellViewModel] = []
     
     init(viewModel: MainViewModel) {
         self.viewModel = viewModel
@@ -66,6 +62,17 @@ class MainView: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = #colorLiteral(red: 0.9411764706, green: 0.9411764706, blue: 0.9411764706, alpha: 1)
         configureConstraints()
+        viewModel.networkMonitoring.startMonitoring()
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(networkChanged),
+                                               name: .networkStatusChanged,
+                                               object: nil)
+        
+        viewModel.gotTask = { [weak self] in
+            self?.tableView.reloadData()
+        }
+        viewModel.getTasks()
     }
     
 }
@@ -75,24 +82,34 @@ class MainView: UIViewController {
 
 extension MainView: UITableViewDelegate, UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return viewModel.tasks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "taskCell") as? TaskCell else {
             return UITableViewCell()
         }
-        cell.configure(isCompleted: false, title: "Title task", date: "2025-01-01 12:00:00")
+        let task = viewModel.tasks[indexPath.row]
+        cell.selectionStyle = .none
+        cell.configure(isCompleted: task.completed, title: task.name, date: task.date ?? Date.formattedDateTime())
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let task = viewModel.tasks[indexPath.row]
+        let detailVM = DetailViewModel(isEditing: true, taskModel: task)
+        let vc = DetailView(viewModel: detailVM)
+        vc.configureView(title: task.name, completed: task.completed, imageData: task.photoBase64)
+        vc.onTaskChanged = { [weak self] task in
+            self?.viewModel.tasks[indexPath.row].id = task.id
+            self?.viewModel.tasks[indexPath.row].name = task.name
+            self?.viewModel.tasks[indexPath.row].completed = task.completed
+            self?.viewModel.tasks[indexPath.row].photoBase64 = task.photoBase64
+            self?.viewModel.saveTasksToDefaults()
+            tableView.reloadData()
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -101,8 +118,8 @@ extension MainView: UITableViewDelegate, UITableViewDataSource {
 extension MainView {
     private func configureConstraints() {
         view.addSubview(titleBackground)
-        view.addSubview(createButton)
         view.addSubview(tableView)
+        view.addSubview(createButton)
         titleBackground.addSubview(titleLabel)
         
         
@@ -135,4 +152,28 @@ extension MainView {
 }
 
 
+//MARK: - Logic Of View
+
+extension MainView {
+    @objc private func showCreatingTaskView() {
+        let vc = DetailView(viewModel: DetailViewModel(isEditing: false, indexForNew: viewModel.tasks.count))
+        vc.onTaskChanged = { [weak self] task in
+            self?.viewModel.tasks.append(task)
+            self?.tableView.reloadData()
+            self?.viewModel.saveTasksToDefaults()
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func networkChanged() {
+        if !viewModel.networkMonitoring.isConnected {
+            let alertController = UIAlertController(title: "No internet connection", message: "Try again later", preferredStyle: .alert)
+            let action = UIAlertAction(title: "Ok", style: .default)
+            alertController.addAction(action)
+            present(alertController, animated: true)
+        } else {
+            viewModel.syncroniseTasks()
+        }
+    }
+}
 

@@ -1,10 +1,3 @@
-//
-//  TaskCell.swift
-//  TestApp
-//
-//  Created by Vadim on 12.10.2025.
-//
-
 import UIKit
 
 class TaskCell: UITableViewCell {
@@ -43,6 +36,7 @@ class TaskCell: UITableViewCell {
     
     private lazy var checkbox: CustomCheckbox = {
         $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.isExclusiveTouch = true
         return $0
     }(CustomCheckbox(isSelected: false))
     

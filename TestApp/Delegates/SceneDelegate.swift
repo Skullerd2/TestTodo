@@ -1,9 +1,3 @@
-//
-//  SceneDelegate.swift
-//  TestApp
-//
-//  Created by Vadim on 12.10.2025.
-//
 
 import UIKit
 
@@ -17,7 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        let vc = MainView(viewModel: MainViewModel())
+        let vc = MainView(viewModel: MainViewModel(tasks: []))
         let navigationController = UINavigationController(rootViewController: vc)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()

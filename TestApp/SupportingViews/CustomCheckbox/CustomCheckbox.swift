@@ -17,7 +17,8 @@ class CustomCheckbox: UIView {
     }
     
     private lazy var checkmarkImageView: UIImageView = {
-        $0.image = UIImage(systemName: "checkmark")?.withRenderingMode(.alwaysTemplate)
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold)
+        $0.image = UIImage(systemName: "checkmark", withConfiguration: config)?.withRenderingMode(.alwaysTemplate)
         $0.tintColor = .white
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.isHidden = !isCompleted
@@ -40,6 +41,8 @@ class CustomCheckbox: UIView {
         layer.cornerRadius = 10
         layer.borderWidth = 1
         layer.borderColor = #colorLiteral(red: 0.454395771, green: 0.5721556544, blue: 0.9948783517, alpha: 1).cgColor
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tapGesture)
     }
     
     private func configureConstraints() {
@@ -51,5 +54,9 @@ class CustomCheckbox: UIView {
             checkmarkImageView.widthAnchor.constraint(equalToConstant: 16),
             checkmarkImageView.heightAnchor.constraint(equalTo: checkmarkImageView.widthAnchor)
         ])
+    }
+    
+    @objc private func handleTap() {
+        isCompleted.toggle()
     }
 }
