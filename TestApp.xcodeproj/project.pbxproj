@@ -31,6 +31,7 @@
 		DDA518492E9B329A00587781 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDA5185F2E9B329D00587781 /* TestAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDA518692E9B329D00587781 /* TestAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDDD95BC2EAF1C2300A11E3B /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -97,6 +98,7 @@
 				DDA518622E9B329D00587781 /* TestAppTests */,
 				DDA5186C2E9B329D00587781 /* TestAppUITests */,
 				DDA5184A2E9B329A00587781 /* Products */,
+				DDDD95BC2EAF1C2300A11E3B /* .gitignore */,
 			);
 			sourceTree = "<group>";
 		};

@@ -88,7 +88,6 @@ extension MainViewModel {
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(tasks)
-            print(tasks)
             defaults.set(data, forKey: "tasks")
         } catch {
             print("Error saving tasks: \(error)")
@@ -100,7 +99,6 @@ extension MainViewModel {
         do {
             let decoder = JSONDecoder()
             let tasks = try decoder.decode([TaskModel].self, from: data)
-            print(tasks)
             return tasks
         } catch {
             print("Error loading tasks: \(error)")
